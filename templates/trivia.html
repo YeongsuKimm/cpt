@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trivia Question</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        #question {
+            font-weight: bold;
+        }
+        #answer {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Trivia Question</h1>
+    <div id="question">{{ question.question }}</div>
+    <form action="/next_question" method="post">
+        <input type="text" id="answer" name="answer" placeholder="Your answer">
+        <br>
+        <input type="submit" value="Next Question">
+    </form>
+</body>
+</html>
