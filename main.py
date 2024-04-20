@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///questions.sqlite3'  # SQLite database for demonstration
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sqlite3'  # SQLite database for demonstration
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
