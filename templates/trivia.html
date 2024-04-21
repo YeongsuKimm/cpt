@@ -8,22 +8,111 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
+            background-color: #f0f0f0;
         }
-        #question {
-            font-weight: bold;
-        }
-        #answer {
+        
+        h1 {
+            color: #333;
             margin-top: 20px;
         }
+        
+        #prompt {
+            font-weight: bold;
+            margin-top: 50px;
+        }
+        
+        #answer {
+            margin-top: 20px;
+            padding: 10px;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        
+        #submitButton {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        #submitButton:hover {
+            background-color: #45a049;
+        }
     </style>
+    <script>
+        var questions = {{ ques|tojson }}
+        var number = 1
+        var correct = 0
+        console.log(questions)
+    </script>
 </head>
 <body>
     <h1>Trivia Question</h1>
-    <div id="question">{{ question.question }}</div>
-    <form action="/next_question" method="post">
-        <input type="text" id="answer" name="answer" placeholder="Your answer">
-        <br>
-        <input type="submit" value="Next Question">
-    </form>
+    <div id="prompt">question placeholder</div>
+    <input type="text" id="answer" name="answer" placeholder="Your answer">
+    <br>
+    <button id="submitButton" onclick="nextQuestion()">Next Question</button>
+    <script>
+        function renderQuestions(triviaQuestions, number){
+            document.getElementById("answer").value = "" 
+            document.getElementById("prompt").innerText = triviaQuestions[number.toString()]["question"]
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("loaded")
+            renderQuestions(questions, number)
+        });
+        function nextQuestion() {
+            var guess = document.getElementById("answer").value
+            if(number !== 10){
+                if(questions[number.toString()]["answer"]===guess){
+                    correct+=1
+                }
+                number+=1
+            }
+            else if (number === 10){
+                document.getElementById("answer").placeholder = "Enter UID"
+                document.getElementById("submitButton").innerHTML = "Submit Score"
+                document.getElementById("submitButton").onclick = uploadScore
+                document.getElementById("prompt").innerHTML = "You got " + correct + " out of 10 correct!" + "<br>" + " Enter your UID to save your score!"
+            }
+            renderQuestions(questions, number)
+        }
+        function uploadScore(){
+            console.log("upload")
+            var user = document.getElementById("answer").value
+            var data = {
+                uid: user,
+                score: correct
+            }
+            if(user===""){
+                document.getElementById("prompt").innerHTML = "You got " + correct + " out of 10 correct!" + "<br>" + " Enter your UID to save your score!" + "<br>" + "UID Required"
+                return;
+            }
+            const apiUrl = "http://127.0.0.1:5000/user"
+            fetch(apiUrl, {
+                method:"POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('success');
+                    document.getElementById("prompt").innerHTML = "You got " + correct + " out of 10 correct!" + "<br>" + " Enter your UID to save your score!" + "<br" + "Upload Success!"
+                } else {
+                    console.error('failed');
+                    document.getElementById("prompt").innerHTML = "You got " + correct + " out of 10 correct!" + "<br>" + " Enter your UID to save your score!" + "<br>" + "Upload Failed"
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
 </body>
 </html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #333;
+            margin-top: 20px;
+        }
+        
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+        }
+        
+        thead {
+            background-color: #4caf50;
+            color: #fff;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        
+        tr:hover {
+            background-color: #ddd;
+        }        
+    </style>
+</head>
+<body>
+    <h1>Leaderboard</h1>
+    <table id="leaderboard">
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>UID</th>
+                <th>Score</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <script>
+        var board = {{ users_list|tojson|safe }};
+        renderLeaderboard(board);
+
+        function renderLeaderboard(users) {
+            var tableBody = document.querySelector('#leaderboard tbody');
+            
+            users.forEach(function(user) {
+                var row = document.createElement('tr');
+
+                var rankCell = document.createElement('td');
+                rankCell.textContent = user.rank;
+                row.appendChild(rankCell);
+
+                var uidCell = document.createElement('td');
+                uidCell.textContent = user.uid;
+                row.appendChild(uidCell);
+
+                var scoreCell = document.createElement('td');
+                scoreCell.textContent = user.score;
+                row.appendChild(scoreCell);
+
+                tableBody.appendChild(row);
+            });
+        }
+    </script>
+</body>
+</html>
