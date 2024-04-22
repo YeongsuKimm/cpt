@@ -104,6 +104,8 @@
                 if (response.ok) {
                     console.log('success');
                     document.getElementById("prompt").innerHTML = "You got " + correct + " out of 10 correct!" + "<br>" + " Enter your UID to save your score!" + "<br" + "Upload Success!"
+                    window.location.href = "http://127.0.0.1:5000/user";
+                    window.location.replace("http://127.0.0.1:5000/user");
                 } else {
                     console.error('failed');
                     document.getElementById("prompt").innerHTML = "You got " + correct + " out of 10 correct!" + "<br>" + " Enter your UID to save your score!" + "<br>" + "Upload Failed"

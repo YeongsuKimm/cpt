@@ -162,7 +162,19 @@ def user():
         else:
             usr = User(uid,score)
             usr.create()
-        return "upload success"
+        print("upload success")
+        users = User.query.order_by(User.rank).all()
+        print(users)
+        users_list = []
+        for user in users:
+            user_data = {
+                'uid': user.uid,
+                'score': user.score,
+                'rank': user.rank
+            }
+            users_list.append(user_data)
+        print(users_list)
+        return render_template("leaderboard.html", users_list=users_list)
     elif request.method == 'GET':
         users = User.query.order_by(User.rank).all()
         print(users)

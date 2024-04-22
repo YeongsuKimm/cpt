@@ -152,7 +152,8 @@ def game2248(cBoard):
     # for i in board2:
     #     print(i)  
     # print(String)
-              
+
+
 def nextSpot(row, col, paths, board):
     value = int(board[row][col])
     print("_________________________________")
