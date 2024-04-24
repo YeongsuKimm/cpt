@@ -93,7 +93,8 @@ def game2248(cBoard):
     
     print(horStarts)
     for start in horStarts:
-        nextSpot(int(start[0]),int(start[1]),paths,board2);
+        print(nextSpot(int(start[0]),int(start[1]),paths,board2));
+        break
     
     path = "13 23 32 41 51 61 72 82 83";
     path = path.split()
@@ -154,17 +155,26 @@ def game2248(cBoard):
     # print(String)
 
 
-def nextSpot(row, col, paths, board):
+def nextSpot(row, col, path, board):
     value = int(board[row][col])
     print("_________________________________")
     print(str(row)+str(col)+"=============>")
+    path.append(str(row)+str(col))
+    lst = []
+    # print(path)
     for i in range(3):
         for k in range(3):
             if(i==1 and k==1):
                 continue
             if((row-1+i >= 0 and row-1+i < 5) and (col-1+k >= 0 and col-1+k< 8)):
                 if(int(board[row-1+i][col-1+k]) == value or int(board[row-1+i][col-1+k]) == value*2):
-                    print(str(row-1+i)+str(col-1+k))
+                    if(str(str(row-1+i)+str(col-1+k)) in path):
+                        pass
+                    else:
+                        lst.append(str(row-1+i)+str(col-1+k))
+                        lst.append(nextSpot(row-1+i,col-1+k,path,board))
+                        print(lst)
+    return lst
         
 
 

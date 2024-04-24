@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trivia Question</title>
+    <!-- START - This code was generated using ChatGPT -->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -43,6 +44,7 @@
             background-color: #45a049;
         }
     </style>
+    <!-- END - This code was generated using ChatGPT -->
     <script>
         var questions = {{ ques|tojson }}
         var number = 1
@@ -72,14 +74,14 @@
                     correct+=1
                 }
                 number+=1
+                renderQuestions(questions, number)
             }
             else if (number === 10){
+                document.getElementById("prompt").innerHTML = "You got " + correct + " out of 10 correct!" + "<br>" + " Enter your UID to save your score!"
                 document.getElementById("answer").placeholder = "Enter UID"
                 document.getElementById("submitButton").innerHTML = "Submit Score"
                 document.getElementById("submitButton").onclick = uploadScore
-                document.getElementById("prompt").innerHTML = "You got " + correct + " out of 10 correct!" + "<br>" + " Enter your UID to save your score!"
             }
-            renderQuestions(questions, number)
         }
         function uploadScore(){
             console.log("upload")
