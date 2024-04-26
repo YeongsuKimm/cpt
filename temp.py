@@ -176,6 +176,5 @@ def nextSpot(row, col, path, board):
                         print(lst)
     return lst
         
-
-
+        
 game2248("4 128 4 128 32 16 16 4 256 16 32 4 16 64 4 8 64 64 256 8 16 2 2 256 4 32 128 2 64 8 256 32 128 16 2 8 32 32 4 32")

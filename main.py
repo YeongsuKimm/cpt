@@ -1,17 +1,24 @@
-from flask import Flask, render_template, request, make_response, jsonify
+from flask import Flask, render_template, request, make_response, jsonify, flash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
 import random
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sqlite3'  # SQLite database for demonstration
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app = Flask(__name__) # initiates flask app
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sqlite3' # sets up route for SQL database
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False 
 db = SQLAlchemy(app)
 
-class Question(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    question = db.Column(db.String(255), unique=True, nullable=False)
-    answer = db.Column(db.String(255), unique=False, nullable=False)
+
+"""
+Question class functionality:
+- Constructor: Instantiate a question (takes in the question and its corresponding answer as parameters)
+- create() method: adds a Question instance object to the database
+- read() method: returns a dictionary with key-value pairs for 'question' and 'answer' for a certain question instance
+"""
+class Question(db.Model): # a Question class which represents a question 
+    id = db.Column(db.Integer, primary_key=True) # defines the id column variable for the database
+    question = db.Column(db.String(255), unique=True, nullable=False) # defines the actual question variable in the database
+    answer = db.Column(db.String(255), unique=False, nullable=False) # defines the answer column in the database
     
     def __init__(self, question, answer):
         self.question = question
@@ -33,9 +40,15 @@ class Question(db.Model):
         }
     
     
-def initQuestions():
+"""
+initQuestions() functionality:
+- this function initiates several quiz questions into the database
+- It defines 22 sample questions and then uses iteration to insert each question into the database
+"""
+def initQuestions(): 
     with app.app_context():
         db.create_all()
+        # Questions pulled from Today.com at https://www.today.com/life/inspiration/trivia-questions-rcna39101
         q1 = Question("What occasion corresponds to the longest day of the year?", "summer solstice")
         q2 = Question("What is the distance from earth to the sun?", "93 million miles")
         q3 = Question("What sport was featured on the first curved U.S. coin in 2014?", "Baseball")
@@ -68,11 +81,18 @@ def initQuestions():
                 print("error")
                 
                 
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    uid = db.Column(db.String(255), unique=True, nullable=False)
-    score = db.Column(db.Integer, primary_key=False)
-    rank = db.Column(db.Integer, primary_key=False)
+"""
+User Class Functionality:
+Constructor: Creates a User instance object with the parameters: 'uid' and 'score' (default set to 0)
+getScore(): gets the user's score for a particular user
+saveScore(): saves a new score for the user; this method also handles reassigning the rank for all the users 
+create(): adds a User instance object to the database
+"""
+class User(db.Model): # a User class to represent each user
+    id = db.Column(db.Integer, primary_key=True) # represents the id column of the User database table
+    uid = db.Column(db.String(255), unique=True, nullable=False) # the uid variable column in the database; user id
+    score = db.Column(db.Integer, primary_key=False) # the score variable column in the database; personal best score from the quiz
+    rank = db.Column(db.Integer, primary_key=False) # the rank variable column in the database; unique and is assigned based on score 
     
     def __init__(self,uid,score=0):
         self.uid = uid
@@ -86,12 +106,12 @@ class User(db.Model):
         try:
             self.score = score
             db.session.commit() 
-            users = User.query.order_by(User.score.desc()).all()
+            users = User.query.order_by(User.score.desc()).all() # gets all the users from the database based on descending score value
             rank = 1
             for user in users:
-                user.rank = rank
+                user.rank = rank # reassigns the ranks starting from 1
                 rank+=1
-            db.session.commit()
+            db.session.commit() # commits changes to database
             return self
         except IntegrityError:
             db.session.remove()
@@ -111,15 +131,20 @@ class User(db.Model):
         except IntegrityError:
             db.session.remove()
             return None
-        
+    
+"""
+initUsers() functionality:
+- this function initiates several users into the database
+- It defines 5 users with different scores 
+"""
 def initUsers():
     with app.app_context():
         db.create_all()
-        u1 = User("User1")
-        u2 = User("user2", score=12)
-        u3 = User("User3")
-        u4 = User("User4")
-        u5 = User("User5")
+        u1 = User("Bear")
+        u2 = User("Camel", score=1)
+        u3 = User("Donkey", score=4)
+        u4 = User("Rabbit", score=7)
+        u5 = User("Dog", score=4)
         users = [u1,u2,u3,u4,u5]
         for user in users:
             try:
@@ -127,16 +152,24 @@ def initUsers():
             except IntegrityError:
                 db.session.remove()
                 print("error")
-                
+
+
+"""
+API that handles a request to the default index url, renders the 'index.html' template
+"""
 @app.route("/")
 def home():
     return render_template("index.html")
 
-@app.route("/trivia", methods=["GET"])
-def trivia():
+"""
+API that handles a GET request. 
+- Iterates through the questions in the database and picks 10 random questions and inserts into 'response' dictionary 
+- Returns the 'response' dictionary with the random sample questions for the quiz
+"""
+@app.route("/quiz", methods=["GET","POST"])
+def quiz():
     if request.method == "GET":
         questions = Question.query.all()
-        # print(len(questions))
         sample = []
         while len(sample) < 10:
             index = random.randrange(1,len(questions))
@@ -147,8 +180,40 @@ def trivia():
         for i in sample:
             response[str(index)] = i.read()
             index+=1
-        return render_template("trivia.html",ques=response)
+        return render_template("quiz.html",ques=response)
 
+@app.route("/upload", methods=["GET","POST"])
+def upload():
+    if request.method == "GET":
+        return render_template("upload.html")
+    elif request.method == "POST":
+        data = request.json
+        ques = str(data.get('question'))
+        answer = str(data.get('answer'))
+        questions = Question.query.all()
+        for question in questions:
+            if(question.read()["question"] == ques):
+                flash("Question already in the database!")
+                return False
+        quesObject = Question(ques, answer)
+        quesObject.create()
+        response = []
+        for question in questions:
+            response.append(question.read())
+        return render_template("questions.html", questions_list=response)
+
+        
+
+"""
+API that handles a GET and POST request
+- If POST request: 
+    - Handle the json data from the frontend and creates a new User instance and inserts into the database
+    - Creates a dictionary for all the users from the database and appends each dictionary to a list
+    - After upload success, it renders the 'leaderboard.html' with an updated version of the leaderboard with the list
+- If GET requests:
+    - Creates a dictionary for all the users from the database and appends each dictionary to a list
+    - Renders 'leaderboard.html' with the list as context
+"""
 @app.route("/user", methods=['GET','POST'])
 def user():
     if request.method == 'POST':
@@ -162,9 +227,7 @@ def user():
         else:
             usr = User(uid,score)
             usr.create()
-        print("upload success")
         users = User.query.order_by(User.rank).all()
-        print(users)
         users_list = []
         for user in users:
             user_data = {
@@ -173,11 +236,9 @@ def user():
                 'rank': user.rank
             }
             users_list.append(user_data)
-        print(users_list)
         return render_template("leaderboard.html", users_list=users_list)
     elif request.method == 'GET':
         users = User.query.order_by(User.rank).all()
-        print(users)
         users_list = []
         for user in users:
             user_data = {
@@ -187,13 +248,26 @@ def user():
             }
             users_list.append(user_data)
         return render_template("leaderboard.html", users_list=users_list)
-        # render template later
         
+@app.route("/questions", methods=["GET"])
+def question():
+    if request.method == "GET":
+        questions = Question.query.all()
+        print(questions)
+        response = []
+        for question in questions:
+            response.append(question.read())
+        return render_template("questions.html", questions_list=response)
+
+
+"""
+Function to initialize all test data
+"""
 def init_data():
     initUsers()
     initQuestions()
 
-if __name__ == '__main__':
+if __name__ == '__main__': # if python file is run, initiate the data and keep the file running
     with app.app_context():
         db.create_all()
         init_data()

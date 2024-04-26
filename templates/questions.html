@@ -48,13 +48,12 @@
     </style>
 </head>
 <body>
-    <h1>Leaderboard</h1>
+    <h1>Questions</h1>
     <table id="leaderboard"> <!-- creates the leaderboard table -->
         <thead>
             <tr>
-                <th>Rank</th>
-                <th>UID</th>
-                <th>Score</th>
+                <th>Question</th>
+                <th>Answer</th>
             </tr>
         </thead>
         <tbody>
@@ -62,26 +61,23 @@
     </table>
 
     <script>
-        var board = {{ users_list|tojson|safe }};
+        var board = {{ questions_list|tojson|safe }};
         renderLeaderboard(board);
-        // after getting the users list from the API, iterates through all the users and renders each user into the table 
-        function renderLeaderboard(users) {
-            var tableBody = document.querySelector('#leaderboard tbody');
 
-            users.forEach(function(user) {
+        // after getting the users list from the API, iterates through all the users and renders each user into the table 
+        function renderLeaderboard(questions) {
+            var tableBody = document.querySelector('#leaderboard tbody');
+            console.log(questions)
+            questions.forEach(function(question) {
                 var row = document.createElement('tr');
 
-                var rankCell = document.createElement('td');
-                rankCell.textContent = user.rank;
-                row.appendChild(rankCell);
+                var questionCell = document.createElement('td');
+                questionCell.textContent = question.question;
+                row.appendChild(questionCell);
 
-                var uidCell = document.createElement('td');
-                uidCell.textContent = user.uid;
-                row.appendChild(uidCell);
-
-                var scoreCell = document.createElement('td');
-                scoreCell.textContent = user.score;
-                row.appendChild(scoreCell);
+                var answerCell = document.createElement('td');
+                answerCell.textContent = question.answer;
+                row.appendChild(answerCell);
 
                 tableBody.appendChild(row);
             });

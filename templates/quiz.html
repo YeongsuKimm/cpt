@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trivia Question</title>
+    <title>Quiz Question</title>
     <!-- START - This code was generated using ChatGPT -->
+    <!-- ChatGPT Citation: OpenAI. (2024). ChatGPT (3.5) [Large language model]. https://chat.openai.com -->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -46,27 +47,32 @@
     </style>
     <!-- END - This code was generated using ChatGPT -->
     <script>
-        var questions = {{ ques|tojson }}
-        var number = 1
-        var correct = 0
+        var questions = {{ ques|tojson }} // creates a questions json to contain all the questions from the context
+        var number = 1 // tracks the number of the question 
+        var correct = 0 // tracks the number of correct answers
         console.log(questions)
     </script>
 </head>
 <body>
-    <h1>Trivia Question</h1>
+    <h1>Quiz Question</h1>
     <div id="prompt">question placeholder</div>
     <input type="text" id="answer" name="answer" placeholder="Your answer">
     <br>
     <button id="submitButton" onclick="nextQuestion()">Next Question</button>
     <script>
-        function renderQuestions(triviaQuestions, number){
+        // renders the question by displaying the question into the prompt div tag
+        function renderQuestions(quizQuestions, number){
             document.getElementById("answer").value = "" 
-            document.getElementById("prompt").innerText = triviaQuestions[number.toString()]["question"]
+            document.getElementById("prompt").innerText = quizQuestions[number.toString()]["question"]
         }
+
+        // when the page is loaded, render the question
         document.addEventListener('DOMContentLoaded', function() {
             console.log("loaded")
             renderQuestions(questions, number)
         });
+
+        // gets the guess from the input and checks whether the its the last question. If so, asks for the uid to upload score. Else, gets the next question from the dictioanry and renders it
         function nextQuestion() {
             var guess = document.getElementById("answer").value
             if(number !== 10){
@@ -83,6 +89,9 @@
                 document.getElementById("submitButton").onclick = uploadScore
             }
         }
+
+        // this function is ran when the last question is answered
+        // creates a json with the uid and the score and uploads that to the correct API to upload the new user to the database
         function uploadScore(){
             console.log("upload")
             var user = document.getElementById("answer").value
@@ -91,7 +100,9 @@
                 score: correct
             }
             if(user===""){
-                document.getElementById("prompt").innerHTML = "You got " + correct + " out of 10 correct!" + "<br>" + " Enter your UID to save your score!" + "<br>" + "UID Required"
+                document.getElementById("prompt").innerHTML = "You got " + correct + " out of 10 correct!"
+                document.getElementById("prompt").innerHTML += "<br>" + " Enter your UID to save your score!" 
+                document.getElementById("prompt").innerHTML += "<br>" + "UID Required"
                 return;
             }
             const apiUrl = "http://127.0.0.1:5000/user"
@@ -105,12 +116,19 @@
             .then(response => {
                 if (response.ok) {
                     console.log('success');
-                    document.getElementById("prompt").innerHTML = "You got " + correct + " out of 10 correct!" + "<br>" + " Enter your UID to save your score!" + "<br" + "Upload Success!"
+                    document.getElementById("prompt").innerHTML = "You got " + correct 
+                    document.getElementById("prompt").innerHTML += " out of 10 correct!" + "<br>" 
+                    document.getElementById("prompt").innerHTML += " Enter your UID to save your score!" 
+                    document.getElementById("prompt").innerHTML += "<br>" + "Upload Success!"
+
                     window.location.href = "http://127.0.0.1:5000/user";
                     window.location.replace("http://127.0.0.1:5000/user");
                 } else {
                     console.error('failed');
-                    document.getElementById("prompt").innerHTML = "You got " + correct + " out of 10 correct!" + "<br>" + " Enter your UID to save your score!" + "<br>" + "Upload Failed"
+                    document.getElementById("prompt").innerHTML = "You got " + correct 
+                    document.getElementById("prompt").innerHTML += " out of 10 correct!" + "<br>" 
+                    document.getElementById("prompt").innerHTML += " Enter your UID to save your score!" 
+                    document.getElementById("prompt").innerHTML += "<br>" + "Upload Failed!"
                 }
             })
             .catch(error => {
