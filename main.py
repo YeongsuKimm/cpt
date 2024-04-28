@@ -88,7 +88,7 @@ getScore(): gets the user's score for a particular user
 saveScore(): saves a new score for the user; this method also handles reassigning the rank for all the users 
 create(): adds a User instance object to the database
 """
-class User(db.Model): # a User class to represent each user
+class User(db.Model): # database used to store data to be accessed and updated 
     id = db.Column(db.Integer, primary_key=True) # represents the id column of the User database table
     uid = db.Column(db.String(255), unique=True, nullable=False) # the uid variable column in the database; user id
     score = db.Column(db.Integer, primary_key=False) # the score variable column in the database; personal best score from the quiz
@@ -166,7 +166,7 @@ API that handles a GET request.
 - Iterates through the questions in the database and picks 10 random questions and inserts into 'response' dictionary 
 - Returns the 'response' dictionary with the random sample questions for the quiz
 """
-@app.route("/quiz", methods=["GET","POST"])
+@app.route("/quiz", methods=["GET"])
 def quiz():
     if request.method == "GET":
         questions = Question.query.all()
@@ -182,6 +182,16 @@ def quiz():
             index+=1
         return render_template("quiz.html",ques=response)
 
+"""
+API that handles a GET and POST request. 
+- If GET request:
+    - Simply renders the 'upload.html' file to provide the user an interface to upload questions
+- If POST request:
+    - Receives  the JSON data that contains the elements 'question' and 'answer'
+    - Checks if the question is already in the database
+    - Else creates a new Question instance and uploads that to the database 
+    - If question instance is created, it renders the 'questions.html' file to display all the questions
+"""
 @app.route("/upload", methods=["GET","POST"])
 def upload():
     if request.method == "GET":
@@ -193,7 +203,6 @@ def upload():
         questions = Question.query.all()
         for question in questions:
             if(question.read()["question"] == ques):
-                flash("Question already in the database!")
                 return False
         quesObject = Question(ques, answer)
         quesObject.create()
@@ -210,34 +219,34 @@ API that handles a GET and POST request
     - Handle the json data from the frontend and creates a new User instance and inserts into the database
     - Creates a dictionary for all the users from the database and appends each dictionary to a list
     - After upload success, it renders the 'leaderboard.html' with an updated version of the leaderboard with the list
-- If GET requests:
+- If GET request:
     - Creates a dictionary for all the users from the database and appends each dictionary to a list
     - Renders 'leaderboard.html' with the list as context
 """
 @app.route("/user", methods=['GET','POST'])
 def user():
-    if request.method == 'POST':
-        data = request.json
-        uid = data.get('uid')
-        score = int(data.get('score'))
-        usr = User.query.filter(User.uid == uid).first()
-        if usr:
-            if(usr.score < score):
+    if request.method == 'POST': # selection 
+        data = request.json # sequencing (to unpack the data received into variables)
+        uid = data.get('uid') # sequencing
+        score = int(data.get('score')) # sequencing
+        usr = User.query.filter(User.uid == uid).first() # sequencing
+        if usr: # selection (if the user exists in the database already)
+            if(usr.score < score): # selection
                 usr.saveScore(score);
-        else:
-            usr = User(uid,score)
+        else: # selection (else create new instance and upload to db)
+            usr = User(uid,score) 
             usr.create()
         users = User.query.order_by(User.rank).all()
-        users_list = []
-        for user in users:
+        users_list = [] # utilization of lists to organize data 
+        for user in users: # iteration (gets all the users from the db and organizes each into a dictionary to be added to a list)
             user_data = {
                 'uid': user.uid,
                 'score': user.score,
                 'rank': user.rank
             }
             users_list.append(user_data)
-        return render_template("leaderboard.html", users_list=users_list)
-    elif request.method == 'GET':
+        return render_template("leaderboard.html", users_list=users_list) # returns the updated list of users and their scores
+    elif request.method == 'GET': # selection
         users = User.query.order_by(User.rank).all()
         users_list = []
         for user in users:
@@ -249,6 +258,14 @@ def user():
             users_list.append(user_data)
         return render_template("leaderboard.html", users_list=users_list)
         
+""" 
+API that handles a GET request
+- If GET request:
+    - Collects all the questions from the database and organizes it into a list of dictionaries
+    - Each dictionary has a key-value pair of a question and its answer
+    - Renders the 'questions.html' template with the context being the list of all questions
+    - Frontend will use that context to display all the questions
+"""
 @app.route("/questions", methods=["GET"])
 def question():
     if request.method == "GET":

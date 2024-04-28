@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz Question</title>
-    <!-- START - This code was generated using ChatGPT -->
+    <!-- START - This code was generated using ChatGPT (lines 9-47) -->
     <!-- ChatGPT Citation: OpenAI. (2024). ChatGPT (3.5) [Large language model]. https://chat.openai.com -->
     <style>
         body {
@@ -59,6 +59,7 @@
     <input type="text" id="answer" name="answer" placeholder="Your answer">
     <br>
     <button id="submitButton" onclick="nextQuestion()">Next Question</button>
+    <!-- when the user wants to go to the next question, run the nextQuestion() function --> 
     <script>
         // renders the question by displaying the question into the prompt div tag
         function renderQuestions(quizQuestions, number){
@@ -74,15 +75,15 @@
 
         // gets the guess from the input and checks whether the its the last question. If so, asks for the uid to upload score. Else, gets the next question from the dictioanry and renders it
         function nextQuestion() {
-            var guess = document.getElementById("answer").value
-            if(number !== 10){
+            var guess = document.getElementById("answer").value // gets the user's answer to the question by getting the value of the text prompt box 
+            if(number !== 10){ // if not last question
                 if(questions[number.toString()]["answer"].toLowerCase()===guess.toLowerCase()){
-                    correct+=1
+                    correct+=1 // adds one to the correct answers counter if correct
                 }
-                number+=1
+                number+=1 // adds one to the number of answered questions
                 renderQuestions(questions, number)
             }
-            else if (number === 10){
+            else if (number === 10){// if last question, ask user for uid to upload score
                 document.getElementById("prompt").innerHTML = "You got " + correct + " out of 10 correct!" + "<br>" + " Enter your UID to save your score!"
                 document.getElementById("answer").placeholder = "Enter UID"
                 document.getElementById("submitButton").innerHTML = "Submit Score"
@@ -95,7 +96,7 @@
         function uploadScore(){
             console.log("upload")
             var user = document.getElementById("answer").value
-            var data = {
+            var data = {// creates a dictionary with key-value pairs of 'uid'/the user id and 'score'/the actual user's score
                 uid: user,
                 score: correct
             }
@@ -106,12 +107,12 @@
                 return;
             }
             const apiUrl = "http://127.0.0.1:5000/user"
-            fetch(apiUrl, {
+            fetch(apiUrl, { // call to the backend procedure for uploading user scores (POST request of the /user API)
                 method:"POST",
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(data)
+                body: JSON.stringify(data) // passes in the 'data' variable as an argument to the parameters of the backend procedure
             })
             .then(response => {
                 if (response.ok) {
