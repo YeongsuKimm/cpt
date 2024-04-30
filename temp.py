@@ -17,7 +17,7 @@ def game2248(cBoard):
     
     for i in board2:
         print(i)
-    # check horizontal
+    # # check horizontal
     past = ""    
     for i in range(8):
         for k in range(5):
@@ -91,8 +91,11 @@ def game2248(cBoard):
                     # print("diag double(r-l)" + str(k) + str(3-(i+k)))
                 past = board2[k][3-(i+k)]
     
-    print(horStarts)
+    # print(vertStarts)
+    # print(horStarts)
+    # print(diagStarts1)
     for start in horStarts:
+        # print(nextSpot(int(start[0])-1,int(start[1]),paths,board2))
         print(nextSpot(int(start[0]),int(start[1]),paths,board2));
         break
     
@@ -150,31 +153,46 @@ def game2248(cBoard):
             
     String = String[:-1]        
     # print()
+    # print()`
     # for i in board2:
-    #     print(i)  
+    #     print(i)  `
     # print(String)
-
+    print()
 
 def nextSpot(row, col, path, board):
-    value = int(board[row][col])
+    # print(board)
     print("_________________________________")
     print(str(row)+str(col)+"=============>")
     path.append(str(row)+str(col))
-    lst = []
-    # print(path)
+    while True:
+        lst = getSpots(row,col,path,board)
+        print("possible spots")
+        print(lst)
+        if len(lst) == 1:
+            path.append(lst[0]);
+            row = int(lst[0][0])
+            col = int(lst[0][1])
+        else:
+            for spot in lst:
+                path.append(nextSpot(int(spot[0]),int(spot[1]),path,board))
+            break;
+    return path
+    
+def getSpots(row, col, path, board):
+    value = int(board[row][col])
+    lst = [];
+    print(path)
     for i in range(3):
         for k in range(3):
             if(i==1 and k==1):
                 continue
+            # print(row-1+i)
             if((row-1+i >= 0 and row-1+i < 5) and (col-1+k >= 0 and col-1+k< 8)):
+                
                 if(int(board[row-1+i][col-1+k]) == value or int(board[row-1+i][col-1+k]) == value*2):
                     if(str(str(row-1+i)+str(col-1+k)) in path):
                         pass
                     else:
                         lst.append(str(row-1+i)+str(col-1+k))
-                        lst.append(nextSpot(row-1+i,col-1+k,path,board))
-                        print(lst)
     return lst
-        
-        
-game2248("4 128 4 128 32 16 16 4 256 16 32 4 16 64 4 8 64 64 256 8 16 2 2 256 4 32 128 2 64 8 256 32 128 16 2 8 32 32 4 32")
+game2248("4 128 4 128 32 16 16 4 256 16 32 4 16 64 4 8 64 64 256 8 16 2 2 256 4 32 128 2 64 8 256 32 128 16 2 8 32 32 4 32")#     board = cBoard.split()
