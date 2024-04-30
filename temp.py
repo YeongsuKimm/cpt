@@ -1,9 +1,55 @@
 import math
+
+paths = []
+def nextSpot(row, col, board, path=[]):
+    # print(path)
+    # print("_________________________________")
+    # print(str(row)+str(col)+"=============>")
+    path.append(str(row)+str(col))
+    while True:
+        lst = getSpots(row,col,path,board)
+        # print("path ", end = " : ")
+        # print(path)
+        # print("possible spots", end=" : ")
+        # print(lst)
+        if len(lst) == 1:
+            path.append(lst[0]);
+            row = int(lst[0][0])
+            col = int(lst[0][1])
+        elif len(lst) > 1:
+            for spot in lst:
+                # print("seperate path", end = " : ")
+                nextSpot(int(spot[0]),int(spot[1]),board,path.copy())
+            break;
+        else: 
+            paths.append(path)
+            # print('end of a path')
+            # print("paths ", end = " : ")
+            # print(paths)
+            break;
+    return path
+
+def getSpots(row, col, path, board):
+    value = int(board[row][col])
+    lst = [];
+    for i in range(3):
+        for k in range(3):
+            if(i==1 and k==1):
+                continue
+            # print(row-1+i)
+            if((row-1+i >= 0 and row-1+i < 8) and (col-1+k >= 0 and col-1+k< 5)):
+                if(int(board[row-1+i][col-1+k]) == value or int(board[row-1+i][col-1+k]) == value*2):
+                    if(str(str(row-1+i)+str(col-1+k)) in path):
+                        pass
+                    else:
+                        lst.append(str(row-1+i)+str(col-1+k))
+    return lst
+
+
 def game2248(cBoard):
     board = cBoard.split()
     board2 = []
     count = 0
-    paths = []
     diagStarts1 = []
     diagStarts2 = []
     horStarts = []
@@ -92,26 +138,79 @@ def game2248(cBoard):
                 past = board2[k][3-(i+k)]
     
     # print(vertStarts)
+    # print()
     # print(horStarts)
+    # print()
     # print(diagStarts1)
+    # print()
+    # print(diagStarts2)
+    # print()
     for start in horStarts:
-        # print(nextSpot(int(start[0])-1,int(start[1]),paths,board2))
-        print(nextSpot(int(start[0]),int(start[1]),paths,board2));
-        break
+        path = []
+        nextSpot(int(start[0]),int(start[1]), board=board2, path=path)
+        path = []
+        nextSpot(int(start[0]),int(start[1])-1, board=board2,path=path)
+    for start in vertStarts:
+        path = []
+        nextSpot(int(start[0]),int(start[1]), board=board2, path=path)
+        path = []
+        nextSpot(int(start[0])-1,int(start[1]), board=board2, path=path)
+    for start in diagStarts1:
+        path = []
+        nextSpot(int(start[0]),int(start[1]), board=board2, path=path)
+        path = []
+        nextSpot(int(start[0])-1,int(start[1])-1, board=board2, path=path)
+    for start in diagStarts2:
+        path = []
+        nextSpot(int(start[0]),int(start[1]), board=board2, path=path)
+        path = []
+        nextSpot(int(start[0])-1,int(start[1])+1, board=board2, path=path)
     
-    path = "13 23 32 41 51 61 72 82 83";
+    maxLst = []
+    max = 0;
+    for i in paths:
+        if(len(i)>max):
+            max = len(i)
+    for i in paths:
+        if(len(i) == max):
+            maxLst.append(i)
+        
+    maxLst2 = []
+    for i in maxLst:
+        string = ""
+        for j in i:
+            string += j
+        maxLst2.append(string)
+    
+    maxLst2 = sorted(maxLst2)
+    pathString = maxLst2[0]
+    path = ""
+    for i in range(len(pathString)):
+        if i % 2 == 1:
+            path+=pathString[i] + " ";
+        else:
+            path+=pathString[i];
+    
+    path = path[:-1]
+    
     path = path.split()
+    print(path)
+    
     total = 0;
     for i in path:
-        total += int(board2[int(i[0])-1][int(i[1])-1])
-        board2[int(i[0])-1][int(i[1])-1] = 0;
+        total += int(board2[int(i[0])][int(i[1])])
+        board2[int(i[0])][int(i[1])] = 0;
+    
+    # for i in board2:
+    #     print(i)
+    # print('wasd')
     
     temp = 2;
     while(total > temp):
         temp*=2;
     replace = temp;
-   
-    board2[int(path[-1][0])-1][int(path[-1][1])-1] = replace
+
+    board2[int(path[-1][0])][int(path[-1][1])] = replace
     max = 0;
     for i in range(5):
         for k in range(8):
@@ -155,44 +254,17 @@ def game2248(cBoard):
     # print()
     # print()`
     # for i in board2:
-    #     print(i)  `
+    #     print(i)  
     # print(String)
-    print()
+    return String
 
-def nextSpot(row, col, path, board):
-    # print(board)
-    print("_________________________________")
-    print(str(row)+str(col)+"=============>")
-    path.append(str(row)+str(col))
-    while True:
-        lst = getSpots(row,col,path,board)
-        print("possible spots")
-        print(lst)
-        if len(lst) == 1:
-            path.append(lst[0]);
-            row = int(lst[0][0])
-            col = int(lst[0][1])
-        else:
-            for spot in lst:
-                path.append(nextSpot(int(spot[0]),int(spot[1]),path,board))
-            break;
-    return path
-    
-def getSpots(row, col, path, board):
-    value = int(board[row][col])
-    lst = [];
-    print(path)
+
+def game(board):
     for i in range(3):
-        for k in range(3):
-            if(i==1 and k==1):
-                continue
-            # print(row-1+i)
-            if((row-1+i >= 0 and row-1+i < 5) and (col-1+k >= 0 and col-1+k< 8)):
-                
-                if(int(board[row-1+i][col-1+k]) == value or int(board[row-1+i][col-1+k]) == value*2):
-                    if(str(str(row-1+i)+str(col-1+k)) in path):
-                        pass
-                    else:
-                        lst.append(str(row-1+i)+str(col-1+k))
-    return lst
-game2248("4 128 4 128 32 16 16 4 256 16 32 4 16 64 4 8 64 64 256 8 16 2 2 256 4 32 128 2 64 8 256 32 128 16 2 8 32 32 4 32")#     board = cBoard.split()
+        board = game2248(board)
+    return board
+
+print(game("4 128 4 128 32 16 16 4 256 16 32 4 16 64 4 8 64 64 256 8 16 2 2 256 4 32 128 2 64 8 256 32 128 16 2 8 32 32 4 32"))
+
+print("paths:")
+# print(paths)
